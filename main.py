@@ -1,4 +1,5 @@
 import random
+import copy
 
 levelup_cost = 1
 mutation_rate = 0.5
@@ -28,7 +29,10 @@ class Formula() :
     def calc(self,x) :
         ans = 0
         for dim,coef in self.__formula.items() :
-            ans += coef * (x ** dim)
+            if x != 0 :
+                ans += coef * (x ** dim)
+            else :
+                ans += coef
         return ans
 
     def get_formula(self) :
@@ -59,6 +63,9 @@ class Formula() :
         zero_list = get_keys_from_value(self.__formula,0)
         for dim in zero_list :
             self.del_term(dim)
+    
+    def copy(self) :
+        return Formula(copy.deepcopy(self.__formula))
 
 
 class Formuler() :
@@ -79,6 +86,9 @@ class Formuler() :
     
     def calc(self,x) :
         return self.__formula.calc(x)
+    
+    def copy(self) :
+        return Formuler(Formula(copy.deepcopy(self.get_formula())))
 
 
 class Earth() :
@@ -125,17 +135,21 @@ class Earth() :
         formulers_results = {}
         for k in self.__list :
             formulers_results[k] = sum([abs(k.calc(l) - sample_results[l]) for l in expanded_range(0,calc_interval,self.__level)])
-        formula_reuslts = sort_by_values(formulers_results)
-        self.__list = [Formuler(Formula(k)) for k in formula_reuslts.keys()]
+        formuler_reuslts = sort_by_values(formulers_results)
+        self.__list = [Formuler(Formula(k)) for k in formuler_reuslts.keys()]
 
     def mutation(self) :
+        temp_list = []
         for l in range(self.__mutation_add_num) :
             for k in self.__list :
-                k.mutation()
-                self.__list.append(k)
-
+                temp_list.append(k)
+                temp_formuler = k.copy()
+                temp_formuler.mutation()
+                temp_list.append(temp_formuler)
+        self.__list = temp_list
+        #TODO:重複を削除
 
 earth = Earth(10,Formula({1:1}),10,0,9,0,9,1)
 earth.mutation()
 earth.sort()
-#print(earth.get_formuler())
+print(len(earth.get_list()))
