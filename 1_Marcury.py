@@ -1,3 +1,4 @@
+#最初(未完成)
 import random
 
 levelupCost = 1
@@ -38,8 +39,8 @@ class Formula() :
         dimentionNum = self.getDimention.index(dimention)
         self.__formula[dimentionNum][0] += change
 
-    def changeDimention(self,dimention)
-
+    def changeDimention(self,dimention) :
+        pass
 
 
 class Earth() :
